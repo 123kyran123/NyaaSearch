@@ -1,17 +1,162 @@
+<!DOCTYPE html>
 <html>
 	<head>
+		<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
 		<link rel="stylesheet" href="../Style/bootstrap.min.css">
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="../Style/Content.css">
+		<script src="../Javascript/bootstrap.js"></script>
+		<script src="../Javascript/bootstrap.min.js"></script>
 		<script src="../Controller/Controller.js"></script>
 	</head>
 	<body>
-		<nav class="navbar navbar-inverse">
-			<form class="navbar-form navbar-left" role="search" onsubmit="javascript:crawl()">
-				<div class="form-group">
-					<input type="text" id="link" name="link" class="form-control" style="width:500px;">
+		<nav class="navbar navbar-inverse" style="border-radius:0px;box-shadow:0px 2px 11px #363636;">
+			<div class="navbar-form navbar-left" role="search">
+				<div style="float:left;">
+					<input type="text" id="link" name="link" style="float:left;width:500px;display:block;height:34px;padding:6px 12px;font-size:14px;line-height:1.42857143;color:#555;background-color:#fff;background-image:none;border:1px solid #ccc;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.075);box-shadow:inset 0 1px 1px rgba(0,0,0,.075);-webkit-transition:border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;-o-transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s;transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s">
 				</div>
-				<button type="submit" class="btn btn-default">Submit</button>
-			</form>
+				<button class="btn btn-default" onclick="crawl()" style="margin-left:5px;float:left;">Submit</button>
+			</div>
 		</nav>
+
+		<div class="container-fluid mainContentDiv">
+			<div class="container-fluid contentDiv" name="filters" id="filters" style="padding:5px;width:300px;overflow-y:scroll;">
+
+				<div class='panel panel-default accordion-style'>
+					<div class='panel-heading accordion-toggle question-toggle collapsed' data-toggle='collapse' data-parent='#faqAccordion' data-target='#groups'>
+						<h4 class='panel-title'>
+							Group
+						</h4>
+					</div>
+					<div id='groups' class='panel-collapse collapse' style='height: 0px;'>
+						<div class='panel-body' id="groupSelect">
+
+						</div>
+					</div>
+				</div>
+
+				<div class='panel panel-default accordion-style'>
+					<div class='panel-heading accordion-toggle question-toggle collapsed' data-toggle='collapse' data-parent='#faqAccordion' data-target='#episodes'>
+						<h4 class='panel-title'>
+							Episode
+						</h4>
+					</div>
+					<div id='episodes' class='panel-collapse collapse' style='height: 0px;'>
+						<div class='panel-body' id="episodeSelect">
+
+						</div>
+					</div>
+				</div>
+
+				<div class='panel panel-default accordion-style'>
+					<div class='panel-heading accordion-toggle question-toggle collapsed' data-toggle='collapse' data-parent='#faqAccordion' data-target='#resolutions'>
+						<h4 class='panel-title'>
+							Resolution
+						</h4>
+					</div>
+					<div id='resolutions' class='panel-collapse collapse' style='height: 0px;'>
+						<div class='panel-body' id="resolutionSelect">
+
+						</div>
+					</div>
+				</div>
+
+				<div class='panel panel-default accordion-style'>
+					<div class='panel-heading accordion-toggle question-toggle collapsed' data-toggle='collapse' data-parent='#faqAccordion' data-target='#sizes'>
+						<h4 class='panel-title'>
+							Size
+						</h4>
+					</div>
+					<div id='sizes' class='panel-collapse collapse' style='height: 0px;'>
+						<div class='panel-body' id="sizeSelect">
+
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="table-responsive contentDiv" id="tableDiv" name="table" style="margin-left: 20px;width: calc(100% - 320px);overflow:hidden;">
+				<!--Table with the piano sheets -->
+				<table class="table table-hover" >
+					<thead>
+					<tr style="background-color:#363636;color:#fff;">
+						<th id="th0">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</th>
+						<th class="col-md-2 tableGroup" id="th1"><a class="sort sortLink unselectable" data-sort="tableGroup">Group</a></th>
+						<th class="col-md-5 tableName" id="th2"><a class="sort sortLink unselectable" data-sort="tableName">Torrent name</a></th>
+						<th class="col-md-1 tableEpisode" id="th3"><a class="sort sortLink unselectable" data-sort="tableEpisode">Episode</a></th>
+						<th class="col-md-1 tableResolution" id="th4"><a class="sort sortLink unselectable" data-sort="tableResolution">Resolution</a></th>
+						<th class="col-md-1 tableSeeders" id="th5"><a class="sort sortLink unselectable" data-sort="tableSeeders">Seeders</a></th>
+						<th class="col-md-1 tableLeechers" id="th6"><a class="sort sortLink unselectable" data-sort="tableLeechers">Leechers</a></th>
+						<th class="col-md-1 tableSize" id="th7"><a class="sort sortLink unselectable" data-sort="tableSize">Size</a></th>
+					</tr>
+					</thead>
+					<tbody id="tableBody" class="list" style="overflow-y:scroll;position:fixed;height:850px;">
+
+					</tbody>
+				</table>
+			</div>
+		</div>
 	</body>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.2.0/list.min.js"></script>
+	<script type="text/javascript">
+		var options;
+		var tableList;
+
+		function initializeTable(){
+			options = { valueNames: ['tableGroup', 'tableName', 'tableEpisode', 'tableResolution', 'tableSeeders', 'tableLeechers', 'tableSize'] };
+
+			tableList = new List('tableDiv', options);
+		}
+
+		function selectRow(row)
+		{
+			var firstInput = row.getElementsByTagName('input')[0];
+			firstInput.checked = !firstInput.checked;
+
+			//check if the checkbox is checked or not and check what filter it is
+			if(firstInput.checked){
+				switch(firstInput.id){
+					case 'groups':
+						tableList.filter(function(item){
+							if(item.values().tableGroup == firstInput.value){
+								return true;
+							} else {
+								return false;
+							}
+						});
+						break;
+					case 'episodes':
+						tableList.filter(function(item){
+							if(item.values().tableEpisode == firstInput.value){
+								return true;
+							} else {
+								return false;
+							}
+						});
+						break;
+					case 'resolutions':
+						tableList.filter(function(item){
+							if(item.values().tableResolution == firstInput.value){
+								return true;
+							} else {
+								return false;
+							}
+						});
+						break;
+					default:
+						console.log("no id");
+				}
+
+
+
+			} else {
+				tableList.filter();
+			}
+
+		}
+
+		//Reset filters
+		function resetFilters(){
+			tableList.filter();
+		}
+	</script>
 </html>

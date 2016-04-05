@@ -1,163 +1,207 @@
 <?php
-	include_once("../SHD/simple_html_dom.php");
+	include_once("Database.php");
+	include_once("DatabaseHelper.php");
 
-	//getHTML($_POST["search"]);
-	getHTML("saenai");
-	
-	function createLink($search){
-		return "http://www.nyaa.se/?page=search&cats=1_37&term=".$search."&offset=";		
+	if(isset($_POST['crawlNyaa'])){
+		echo json_encode(array_values(getHTML($_POST["crawlNyaa"])));
 	}
 	
-	function getHTML($search) {
-		//Setup Arrays
-		$pagesArray = array();
+	function createLink($search, $page){
+		return "http://www.nyaa.se/?page=rss&cats=1_37&filter=0&term=".$search."&offset=".$page;
+	}
+	
+	function getHTML($search){
+
+		//Initialize database
+		$Database = new Database();
+		$videoDB = $_SERVER['DOCUMENT_ROOT']."\\Nyaa_Search\\groupTemplates.sqlite";
+
+		//Initialize the video database
+		$Database->InitializeDatabase($videoDB);
+
+		$torrents = array();
 		$page = 1;
-		
-		//Create link
-		$searchLink = createLink($search);
-		while($page < 100 || $page != 0){
-			
-			//Get HTML from link + page
-			$content = file_get_html($searchLink."".$page);
-			
-			//First cut content and such until only table is left
-			$table = getTable($content);
-			//$pagesArray[] = $content;
-			
-			//Check if page is empty
-			if(count($table) < 4){
-				break;
-			}
 
-			//next page
-			$page++;
-			
-			//echo content
-			//print_r($table);
-		}
-		
-	}
-	
-	function getTable($content){
-		//Initialize variables
-		$tableArray = Array();
-		
-		//Loop through rows
-		$rows = $content->find("tr");
-		
-		foreach($rows as $row){
-			$tableRow = Array();
-			
-			//Check if content is necessary
-			if(
-				strpos($row->innertext, "Date") === false &&
-				strpos($row->innertext, "Category") === false
-			){
-				//Get all sub items
-				$tdList = $row->find("td");
-				
-				foreach($tdList as $td){
-					
-					//Check if table cell contains the torrent info
-					if(!is_numeric(substr($td->innertext, 0, 1)) && strpos($td->innertext, "<img") === false && strpos($td->innertext, "No torrents found") === false){
-						
-						//Get information from the name
-						$tableRow[] = getTorrentInfo($td);
-						
-					} else if(strpos($td->innertext, "<img") === false){
-						
-						$tableRow[] = $td->innertext;
-						
-					}				
-				}
-				
-				$tableArray[] = $tableRow;
-			}
-			
-			unset($tableRow);
-			
+		//get Group templates
+		$groupQuery = getAllGroups($Database, $videoDB);
 
-		}
-		return $tableArray;
-		
-	}
-	
-	function getTorrentInfo($td){
-		$torrentInfo = Array();
-		
-		//Get the group of the show
-		if(strpos(substr($td->innertext, 0, 1), "[") !== true){	
-		
-			//Check if name isn't too long for a group
-			$group = $td->innertext;
-			$group = explode("]", strip_tags($group))[0];
-			
-			if(strlen($group) < 30){
-				
-				if(stripos($group, "batch") === false){
-					//Remove the [ tag from the group name
-					$group = explode("[", $group)[1];	
+		//Loop through pages
+		while($page != 0){
+			//Create link
+			$searchLink = createLink($search, $page);
 
-					//Fill Array with group
-					$torrentInfo[] = $group;
-					
-					
-					//Get Name of the show
-					$name = $td->innertext;
+			//Get RSS feed
+			$xmlDoc = new DOMDocument();
+			$xmlDoc->load($searchLink);
+			$items = $xmlDoc->getElementsByTagName('item');
+			$count = 0;
 
-					//Strip the name from the string
-					$name = explode("]", strip_tags($name))[1];
-					$name = explode("[", $name)[0];
-					
-					//Check if there isn't a divider before the number and remove the number
-					$name = explode("0", $name)[0];
-		
-					//Check if the text contains a certain character and remove these
-					if(stripos($name, "_") !== false){
-						$name = str_replace('_', ' ', $name);
-					}
-					
-					//Remove the episode number and other information
-					$name = explode(" - ", $name)[0];
-					
-					//Change string to lower case except first letter
-					$name = ucwords(strtolower($name));
-					
-					//Fill Array with torrent name
-					$torrentInfo[] = $name;
-					
-					//Get episode number or if it's a batch
-					$episode = $td->innertext;
-					$episode = explode("]", strip_tags($episode))[1];
-					
-					//Check if the text contains a certain character and remove these
-					if(stripos($episode, "_") !== false){
-						$episode = str_replace('_', ' ', $episode);
-					}
-					
-					//Remove show title from $episode
-					if(stripos($episode, "-") !== false){
-						$episode = explode("- ", $episode)[1];
-					}
-					
-					//Check if it actually has an episode number
-					if(is_numeric(substr($episode, 0, 1))){
-						
-						//Remove everything behind episode number
-						if(stripos($episode, "[") !== false){
-							$episode = explode(" [", $episode)[0];
-						} else if(stripos($episode, "(") !== false){
-							$episode = explode(" (", $episode)[0];
+			//Loop through torrents
+			foreach($items as $i => $item){
+				$count++;
+
+				//Get torrent information
+				$torrentInfo = $item->getElementsByTagName('description')->item(0)->childNodes->item(0)->nodeValue;
+				$torrentSeeders = explode("," ,$torrentInfo)[0];
+				$torrentLeechers = explode("," ,$torrentInfo)[1];
+				$torrentDownloads = explode("," ,$torrentInfo)[2];
+				$torrentDownloads = explode("-", $torrentDownloads)[0];
+				$torrentSize = explode(" - " ,$torrentInfo)[1];
+
+				$torrentDate  = date("YmdHis", strtotime($item->getElementsByTagName('pubDate')->item(0)->childNodes->item(0)->nodeValue));
+				$torrentLink  = $item->getElementsByTagName('link')->item(0)->childNodes->item(0)->nodeValue;
+				$torrentId = getNyaaId($torrentLink);
+
+
+				for($i = 0; $i < count($groupQuery); $i++){
+					//check if $items has a group template
+					if(stripos($item->getElementsByTagName('title')->item(0)->childNodes->item(0)->nodeValue, $groupQuery[$i]['groups'])) {
+
+						//Check if batch
+						if (preg_match('/\.?(?<batch>(?:BD|TV|Batch|Vol.*?))/', $item->getElementsByTagName('title')->item(0)->childNodes->item(0)->nodeValue)) {
+							if(preg_match($groupQuery[$i]['batchRegex'], $item->getElementsByTagName('title')->item(0)->childNodes->item(0)->nodeValue, $matches) != 0){
+
+								if(stripos($matches['show'], " Vol") !== false){
+									$volume = "Volume ".explode("Vol", $matches['show'])[1];
+									if(stripos($volume, ".") !== false){
+										$volume = "Volume ".explode(".", $volume)[1];
+									}
+
+									if(stripos($matches['show'], "-") !== false){
+										$name = explode(" -" ,$matches['show'])[0];
+									} else {
+										$name = explode(" V" ,$matches['show'])[0];
+									}
+
+								} else {
+									$volume = "Batch";
+									$name = $matches['show'];
+								}
+
+								$torrents[] = array(
+									"id" => $torrentId,
+									"name" => $name,
+									"group" => $matches['group'],
+									"episode" => $volume,
+									"resolution" => $matches[4]." ".$matches[5],
+									"seeders" => $torrentSeeders,
+									"leechers" => $torrentLeechers,
+									"downloads" => $torrentDownloads,
+									"size" => $torrentSize,
+									"link" => $torrentLink,
+									"date" => $torrentDate
+								);
+							}
+
+						} else {
+							if(preg_match($groupQuery[$i]['regex'], $item->getElementsByTagName('title')->item(0)->childNodes->item(0)->nodeValue, $matches) != 0){
+								$torrents[] = array(
+									"id" => $torrentId,
+									"name" => $matches['show'],
+									"group" => $matches['group'],
+									"episode" => $matches['episode'],
+									"resolution" => $matches[4]." ".$matches[5],
+									"seeders" => $torrentSeeders,
+									"leechers" => $torrentLeechers,
+									"downloads" => $torrentDownloads,
+									"size" => $torrentSize,
+									"link" => $torrentLink,
+									"date" => $torrentDate
+								);
+							}
 						}
-						
-						echo $episode."<br/>";
+
 					}
-					
 				}
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+			//Get information out of torrent name
+			$torrentTitle = getTorrentInfo($item->getElementsByTagName('title')->item(0)->childNodes->item(0)->nodeValue, $torrentInformation);
+			$torrentName = $torrentTitle[1];
+			$torrentGroup = $torrentTitle[0];
+			$torrentEpisode = $torrentTitle[2];
+			$torrentResolution = $torrentTitle[3];
+
+			//Get other torrent Information
+			$torrentInfo = $item->getElementsByTagName('description')->item(0)->childNodes->item(0)->nodeValue;
+			$torrentSeeders = explode("," ,$torrentInfo)[0];
+			$torrentLeechers = explode("," ,$torrentInfo)[1];
+			$torrentDownloads = explode("," ,$torrentInfo)[2];
+			$torrentSize = explode(" - " ,$torrentInfo)[1];
+
+			if(array_key_exists(2, explode(" - " ,$torrentInfo))) {
+				$torrentType = explode(" - " ,$torrentInfo)[2];
+			} else {
+				$torrentType = "None";
+			}
+
+			$torrentDate  = date("YmdHis", strtotime($item->getElementsByTagName('pubDate')->item(0)->childNodes->item(0)->nodeValue));
+			$torrentLink  = $item->getElementsByTagName('link')->item(0)->childNodes->item(0)->nodeValue;
+			$torrentId = $torrentInformation::getNyaaId($torrentLink);
+
+			$torrents[] = array(
+							"id" => $torrentId,
+							"name" => $torrentName,
+							"group" => $torrentGroup,
+							"episode" => $torrentEpisode,
+							"resolution" => $torrentResolution,
+							"type" => $torrentType,
+							"seeders" => $torrentSeeders,
+							"leechers" => $torrentLeechers,
+							"downloads" => $torrentDownloads,
+							"size" => $torrentSize,
+							"link" => $torrentLink,
+							"date" => $torrentDate
+			);*/
+
+			if($count < 10){
+				$page = 0;
+			} else {
+				$page++;
 			}
 		}
-		
-		
-		//echo explode("]", explode("[", $td->innertext)[1])[1]." ".$groupInfo[0]."<br/>";
+		return array_values($torrents);
 	}
+
+	function getNyaaId($url)
+	{
+		$query = array();
+		$url = parse_url($url);
+		parse_str($url['query'], $query);
+		return $query['tid'];
+	}
+
+	/*//Get torrentInformation from name
+	function getTorrentInfo($td, $torrentInformation){
+		$strippedInfo = $torrentInformation::stripInfo($td);
+		$torrentGroup = $torrentInformation::getGroup($strippedInfo);
+		$torrentEpisode = $torrentInformation::getEpisode($td);
+		$torrentName = $torrentInformation::getName($td, $torrentGroup);
+		$torrentResolution = $torrentInformation::getResolution($td);
+
+		if($torrentGroup != false){
+			$torrentInfo = Array();
+			$torrentInfo[] = $torrentGroup;
+			$torrentInfo[] = $torrentName;
+			$torrentInfo[] = $torrentEpisode;
+			$torrentInfo[] = $torrentResolution;
+
+			return array_values($torrentInfo);
+		}
+
+		return false;
+	}*/
 ?>
