@@ -71,7 +71,7 @@ function crawl(){
 				episodes.push(jsonResult[key]['episode']);
 
 				//Save all different resolutions
-				resolutions.push(jsonResult[key]['resolution']);
+				resolutions.push(jsonResult[key]['resolution'].replace(/\s/g, ''));
 			}
 
 			//Remove double items

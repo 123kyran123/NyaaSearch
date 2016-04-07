@@ -78,12 +78,18 @@
 									$name = $matches['show'];
 								}
 
+								if(array_key_exists(5, $matches)){
+									$resolution = $matches[4]." ".$matches[5];
+								} else {
+									$resolution = $matches[4];
+								}
+
 								$torrents[] = array(
 									"id" => $torrentId,
 									"name" => $name,
 									"group" => $matches['group'],
 									"episode" => $volume,
-									"resolution" => $matches[4]." ".$matches[5],
+									"resolution" => $resolution,
 									"seeders" => $torrentSeeders,
 									"leechers" => $torrentLeechers,
 									"downloads" => $torrentDownloads,

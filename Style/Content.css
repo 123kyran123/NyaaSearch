@@ -3,6 +3,9 @@
     width:100%;
 }
 
+.submitButton {
+    width: 45%;
+}
 .contentDiv {
     float: left;
     box-shadow: 1px 1px 5px #363636;

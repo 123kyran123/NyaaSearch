@@ -33,14 +33,31 @@
 		/*
 		*	Create table
 		*/
-		public function createTable($file){			
-			//Create table
-			$GLOBALS["db"]->exec("CREATE TABLE templates (
-				groupId INT(10) PRIMARY KEY, 
-				templateRegex VARCHAR(300),
-				templateBatchRegex VARCHAR(300),
-				templateGroups VARCHAR(300)
-			)");
+		public function createTable($file){
+			if(stripos($file, "group")){
+				//Create table
+				$GLOBALS["db"]->exec("CREATE TABLE templates (
+					groupId INT(10) PRIMARY KEY, 
+					templateRegex VARCHAR(300),
+					templateBatchRegex VARCHAR(300),
+					templateGroups VARCHAR(300)
+				)");
+			} else {
+				//Create table
+				$GLOBALS["db"]->exec("CREATE TABLE `users` (
+					`userId`	INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+					`userName`	VARCHAR(300) UNIQUE,
+					`userPassword`	INTEGER UNIQUE
+				)");
+
+				//Create table
+				$GLOBALS["db"]->exec("CREATE TABLE `settings` (
+					`settingId`	INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+					`userId`	INTEGER UNIQUE
+				)");
+			}
+
+
 		}
 		
 		
@@ -50,10 +67,10 @@
 		public function databaseQuery($file, $selectQuery){
 			//Open database connection
 			$this->openDatabaseStream($file);
-			
+
 			//Get results from query
 			$result = $GLOBALS["db"]->query($selectQuery);
-
+			
 			//return the array from the result
 			return($result);
 		}

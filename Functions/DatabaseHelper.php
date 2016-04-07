@@ -37,7 +37,16 @@
 		} else {
 			return false;
 		}
+	}
 
+	function getLoginCredentials($Database, $userDB, $username, $password){
+		if(
+			$username != "" || $username != false || !preg_match('/\s/',$username) ||
+			$password != "" || $password != false || !preg_match('/\s/',$password)
+		) {
+			$query = "SELECT * FROM users WHERE userName = '".$username."' AND userPassword = '".$password."'";
+			return $Database->databaseQuery($userDB, $query);
+		}
 	}
 
 ?>
