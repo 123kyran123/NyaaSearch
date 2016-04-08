@@ -78,7 +78,7 @@
 						<th class="col-md-1 tableSize" id="th7"><a class="sort sortLink unselectable" data-sort="tableSize">Size</a></th>
 					</tr>
 					</thead>
-					<tbody id="tableBody" class="list" style="overflow-y:scroll;position:fixed;height:850px;">
+					<tbody id="tableBody" class="list" style="overflow-y:scroll;position:fixed;height:860px;margin-bottom:5px;margin-left:5px;">
 
 					</tbody>
 				</table>
@@ -94,9 +94,15 @@
 		var resolutionFilters = [];
 
 		function initializeTable(){
-			options = { valueNames: ['tableGroup', 'tableName', 'tableEpisode', 'tableResolution', 'tableSeeders', 'tableLeechers', 'tableSize'] };
+			console.log(tableList);
+			if(tableList != null){
+				tableList.reIndex();
+			} else {
+				options = { valueNames: ['tableGroup', 'tableName', 'tableEpisode', 'tableResolution', 'tableSeeders', 'tableLeechers', 'tableSize'] };
 
-			tableList = new List('tableDiv', options);
+				tableList = new List('tableDiv', options);
+			}
+
 		}
 
 		function login(){
@@ -262,6 +268,6 @@
 			return true;
 		}
 
-		window.onload(login());
+		//window.onload = login;
 	</script>
 </html>

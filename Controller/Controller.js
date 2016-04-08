@@ -64,6 +64,21 @@ function crawl(){
 				$("#"+jsonResult[key]['id']+" #leechers").width($("#th6").width());
 				$("#"+jsonResult[key]['id']+" #size").width($("#th7").width() - 15);
 
+				switch(jsonResult[key]['rating']){
+					case 'Trusted':
+						$("#"+jsonResult[key]['id']+"").addClass("TrustedTorrent");
+						break;
+					case 'Remake':
+						$("#"+jsonResult[key]['id']+"").addClass("RemakeTorrent");
+						break;
+					case 'A+ ':
+						$("#"+jsonResult[key]['id']+"").addClass("AplusTorrent");
+						break;
+					default:
+						$("#"+jsonResult[key]['id']+"").addClass("defaultTorrent");
+						break;
+				}
+
 				//Save all different groups
 				groups.push(jsonResult[key]['group']);
 
@@ -71,7 +86,11 @@ function crawl(){
 				episodes.push(jsonResult[key]['episode']);
 
 				//Save all different resolutions
-				resolutions.push(jsonResult[key]['resolution'].replace(/\s/g, ''));
+				var resolutionResult = jsonResult[key]['resolution'].match(/[0-9]{1,4}[p]/gi, "")
+				if(resolutionResult != null){
+					resolutions.push(resolutionResult.toString());
+				}
+
 			}
 
 			//Remove double items

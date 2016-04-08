@@ -1,3 +1,4 @@
+
 .mainContentDiv{
     margin: auto;
     width:100%;
@@ -6,6 +7,30 @@
 .submitButton {
     width: 45%;
 }
+
+.TrustedTorrent{
+    background-color: rgba(152, 217, 168, 1);
+}
+.TrustedTorrent:hover{
+    background-color: rgba(142, 207, 158, 2) !important;
+}
+
+.RemakeTorrent{
+    background-color: rgba(240, 176, 128, 1);
+    border-color: black !important;
+}
+.RemakeTorrent:hover {
+    background-color: rgba(230, 166, 118, 1) !important;
+}
+
+.AplusTorrent{
+    background-color: rgba(96, 176, 240, 1);
+    border-color: black !important;
+}
+.AplusTorrent:hover{
+    background-color: rgba(86, 166, 230, 1) !important;
+}
+
 .contentDiv {
     float: left;
     box-shadow: 1px 1px 5px #363636;

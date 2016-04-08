@@ -2,6 +2,8 @@
 	include_once("Database.php");
 	include_once("DatabaseHelper.php");
 
+json_encode(array_values(getHTML('saenai')));
+
 	if(isset($_POST['crawlNyaa'])){
 		echo json_encode(array_values(getHTML($_POST["crawlNyaa"])));
 	}
@@ -47,6 +49,11 @@
 				$torrentDownloads = explode("," ,$torrentInfo)[2];
 				$torrentDownloads = explode("-", $torrentDownloads)[0];
 				$torrentSize = explode(" - " ,$torrentInfo)[1];
+				if(preg_match('/\-[\s_](?<rating>[Trusted|Remake|Aplus].+)?$/', $torrentInfo, $matches) != 0){
+					$torrentRating = explode("- ", $matches[0])[1];
+				} else {
+					$torrentRating = "";
+				}
 
 				$torrentDate  = date("YmdHis", strtotime($item->getElementsByTagName('pubDate')->item(0)->childNodes->item(0)->nodeValue));
 				$torrentLink  = $item->getElementsByTagName('link')->item(0)->childNodes->item(0)->nodeValue;
@@ -95,7 +102,8 @@
 									"downloads" => $torrentDownloads,
 									"size" => $torrentSize,
 									"link" => $torrentLink,
-									"date" => $torrentDate
+									"date" => $torrentDate,
+									"rating" => $torrentRating
 								);
 							}
 
@@ -112,7 +120,8 @@
 									"downloads" => $torrentDownloads,
 									"size" => $torrentSize,
 									"link" => $torrentLink,
-									"date" => $torrentDate
+									"date" => $torrentDate,
+									"rating" => $torrentRating
 								);
 							}
 						}
