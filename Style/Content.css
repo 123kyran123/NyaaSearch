@@ -1,33 +1,58 @@
+/*
+* Content.css
+* Contains all the styling for the webpage.
+*
+* Created by: Kyran
+* Date: April 12th 2016
+ */
 
-.mainContentDiv{
-    margin: auto;
+/*
+* Standard html and body styling
+*/
+html, body {
+    overflow: hidden;
+}
+
+/*
+* Styling by ID of the html element
+* Both ID and styling elements ordered by name (A-Z)
+*/
+#filters {
+    overflow-y: scroll;
+    padding: 5px;
+    width: 300px;
+}
+
+#tableBody {
+    height: 860px;
+    margin-bottom: 5px;
+    margin-left: 2px;
+    overflow-y: scroll;
+    position: fixed;
+}
+
+#tableDiv {
+    margin-left: 20px;
+    margin-bottom: 5px;
+    overflow: hidden;
+    width: calc(100% - 320px);
+}
+
+
+/*
+* Styling by class of the html element
+* Both class and styling elements ordered by name (A-Z)
+*/
+.accordion-style {
     width:100%;
 }
 
-.submitButton {
-    width: 45%;
-}
-
-.TrustedTorrent{
-    background-color: rgba(152, 217, 168, 1);
-}
-.TrustedTorrent:hover{
-    background-color: rgba(142, 207, 158, 2) !important;
-}
-
-.RemakeTorrent{
-    background-color: rgba(240, 176, 128, 1);
-    border-color: black !important;
-}
-.RemakeTorrent:hover {
-    background-color: rgba(230, 166, 118, 1) !important;
-}
-
-.AplusTorrent{
+.AplusTorrent {
     background-color: rgba(96, 176, 240, 1);
     border-color: black !important;
 }
-.AplusTorrent:hover{
+
+.AplusTorrent:hover {
     background-color: rgba(86, 166, 230, 1) !important;
 }
 
@@ -38,19 +63,81 @@
     height: 900px;
 }
 
-.accordion-style {
+.customNavBar {
+    border-radius:0px;
+    box-shadow:0px 2px 11px #363636;
+}
+
+.customSubmit {
+    margin-left: 5px;
+    float: left;
+}
+.mainContentDiv {
+    margin: auto;
     width:100%;
+}
+
+.RemakeTorrent {
+    background-color: rgba(240, 176, 128, 1);
+    border-color: black !important;
+}
+
+.RemakeTorrent:hover {
+    background-color: rgba(230, 166, 118, 1) !important;
+}
+
+.searchBar {
+    float: left;
+    width: 500px;
+    display: block;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,
+    -webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s
+}
+
+.searchBarDiv {
+    float: left;
 }
 
 .sortLink {
     color: white;
     text-decoration: none;
 }
+
 .sortLink:hover {
     color: white;
     font-weight: bold;
     cursor: pointer;
 
+}
+
+.submitButton {
+    width: 45%;
+}
+
+.tableHeadRow {
+    background-color: #363636;
+    color: #fff;
+}
+
+.TrustedTorrent{
+    background-color: rgba(152, 217, 168, 1);
+}
+
+.TrustedTorrent:hover{
+    background-color: rgba(142, 207, 158, 2) !important;
 }
 
 .unselectable{
@@ -63,6 +150,10 @@
     onmousedown="return false;
 }
 
+/*
+* Styling by html element
+* Both element and styling elements ordered by name (A-Z)
+*/
 input[type=checkbox] {
     opacity: 0;
     float:left;

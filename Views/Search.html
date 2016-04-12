@@ -6,22 +6,23 @@
 		<link rel="stylesheet" href="../Style/Content.css">
 		<script src="../Javascript/bootstrap.js"></script>
 		<script src="../Javascript/bootstrap.min.js"></script>
-		<script src="../Controller/Controller.js"></script>
 		<script src="https://cdn.jsdelivr.net/sweetalert2/0.4.5/sweetalert2.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.2.0/list.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="../style/sweetAlert.css">
+		<script src="../Controller/Controller.js"></script>
 	</head>
 	<body>
-		<nav class="navbar navbar-inverse" style="border-radius:0px;box-shadow:0px 2px 11px #363636;">
+		<nav class="navbar navbar-inverse customNavBar">
 			<div class="navbar-form navbar-left" role="search">
-				<div style="float:left;">
-					<input type="text" id="link" name="link" style="float:left;width:500px;display:block;height:34px;padding:6px 12px;font-size:14px;line-height:1.42857143;color:#555;background-color:#fff;background-image:none;border:1px solid #ccc;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.075);box-shadow:inset 0 1px 1px rgba(0,0,0,.075);-webkit-transition:border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;-o-transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s;transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s">
+				<div class="searchBarDiv">
+					<input type="text" id="link" name="link" class="searchBar">
 				</div>
-				<button class="btn btn-default" onclick="crawl()" style="margin-left:5px;float:left;">Submit</button>
+				<button class="btn btn-default customSubmit" onclick="crawl()">Submit</button>
 			</div>
 		</nav>
 
 		<div class="container-fluid mainContentDiv">
-			<div class="container-fluid contentDiv" name="filters" id="filters" style="padding:5px;width:300px;overflow-y:scroll;">
+			<div class="container-fluid contentDiv" name="filters" id="filters">
 
 				<div class='panel panel-default accordion-style'>
 					<div class='panel-heading accordion-toggle question-toggle collapsed' data-toggle='collapse' data-parent='#faqAccordion' data-target='#groups'>
@@ -29,7 +30,7 @@
 							Group
 						</h4>
 					</div>
-					<div id='groups' class='panel-collapse collapse' style='height: 0px;'>
+					<div id='groups' class='panel-collapse collapse'>
 						<div class='panel-body' id="groupSelect">
 
 						</div>
@@ -42,7 +43,7 @@
 							Episode
 						</h4>
 					</div>
-					<div id='episodes' class='panel-collapse collapse' style='height: 0px;'>
+					<div id='episodes' class='panel-collapse collapse'>
 						<div class='panel-body' id="episodeSelect">
 
 						</div>
@@ -55,7 +56,7 @@
 							Resolution
 						</h4>
 					</div>
-					<div id='resolutions' class='panel-collapse collapse' style='height: 0px;'>
+					<div id='resolutions' class='panel-collapse collapse'>
 						<div class='panel-body' id="resolutionSelect">
 
 						</div>
@@ -63,12 +64,12 @@
 				</div>
 
 			</div>
-			<div class="table-responsive contentDiv" id="tableDiv" name="table" style="margin-left: 20px;width: calc(100% - 320px);overflow:hidden;">
+			<div class="table-responsive contentDiv" id="tableDiv" name="table">
 				<!--Table with the piano sheets -->
 				<table class="table table-hover" >
 					<thead>
-					<tr style="background-color:#363636;color:#fff;">
-						<th id="th0">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</th>
+					<tr class="tableHeadRow">
+						<th id="th0">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</th>
 						<th class="col-md-2 tableGroup" id="th1"><a class="sort sortLink unselectable" data-sort="tableGroup">Group</a></th>
 						<th class="col-md-5 tableName" id="th2"><a class="sort sortLink unselectable" data-sort="tableName">Torrent name</a></th>
 						<th class="col-md-1 tableEpisode" id="th3"><a class="sort sortLink unselectable" data-sort="tableEpisode">Episode</a></th>
@@ -78,196 +79,11 @@
 						<th class="col-md-1 tableSize" id="th7"><a class="sort sortLink unselectable" data-sort="tableSize">Size</a></th>
 					</tr>
 					</thead>
-					<tbody id="tableBody" class="list" style="overflow-y:scroll;position:fixed;height:860px;margin-bottom:5px;margin-left:5px;">
+					<tbody id="tableBody" class="list">
 
 					</tbody>
 				</table>
 			</div>
 		</div>
 	</body>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.2.0/list.min.js"></script>
-	<script type="text/javascript">
-		var options;
-		var tableList;
-		var groupFilters = [];
-		var episodeFilters = [];
-		var resolutionFilters = [];
-
-		function initializeTable(){
-			console.log(tableList);
-			if(tableList != null){
-				tableList.reIndex();
-			} else {
-				options = { valueNames: ['tableGroup', 'tableName', 'tableEpisode', 'tableResolution', 'tableSeeders', 'tableLeechers', 'tableSize'] };
-
-				tableList = new List('tableDiv', options);
-			}
-
-		}
-
-		function login(){
-			swal({
-				html: '<nav class="navbar navbar-inverse" style=";box-shadow:0px 2px 11px #363636;"><h1>Login</h1></nav><input id="user-field" placeholder="username"><input type="password" id="pass-field" placeholder="password">',
-				showCancelButton: false,
-				closeOnConfirm: false,
-				allowOutsideClick: false,
-				confirmButtonText: "Submit",
-				confirmButtonColor: "#363636",
-				confirmButtonClass: "submitButton",
-				animation: "slide-from-top",
-			},
-			function() {
-				if (
-						$('#user-field').val() === "" ||
-						$('#pass-field').val() === "" ||
-						$('#user-field').val() === false ||
-						$('#pass-field').val() === false
-				) {
-					//Do something when user didn't put in credentials
-					swal({
-						title: "Please fill in the input fields",
-						type: "error"
-					},
-					function() {
-						location.reload();
-					});
-				} else {
-
-					setTimeout(function () {
-						$.ajax({
-							type: "post",
-							url: '../Functions/Login.php',
-							data: {
-								'login': $('#user-field').val(),
-								'pass': $('#pass-field').val()
-							},
-							success: function (result) {
-								if (result == 1) {
-									swal({
-										title: "succesfully logged in!",
-										html: "<h5>you\'ll be redirected to the page in a moment.</h5><br/>",
-										type: "success",
-										timer: 2000,
-										showConfirmButton: false
-									});
-								} else {
-									swal({
-										title: "failed to login!",
-										text: "Please try again",
-										type: "error"
-									},
-									function () {
-										location.reload();
-									});
-								}
-
-							}
-						});
-					}, 2000);
-
-				}
-			})
-		}
-
-		function selectRow(row)
-		{
-			var firstInput = row.getElementsByTagName('input')[0];
-			firstInput.checked = !firstInput.checked;
-
-			//check if the checkbox is checked or not and check what filter it is
-			if(firstInput.checked){
-				switch(firstInput.id){
-					case 'groups':
-						groupFilters.push(firstInput.value);
-						break;
-					case 'episodes':
-						episodeFilters.push(firstInput.value);
-						break;
-					case 'resolutions':
-						resolutionFilters.push(firstInput.value);
-						break;
-				}
-			} else {
-
-				switch(firstInput.id){
-					case 'groups':
-						if(groupFilters.indexOf(firstInput.value) != -1) {
-							groupFilters.splice(groupFilters.indexOf(firstInput.value), 1);
-						}
-						break;
-					case 'episodes':
-						if(episodeFilters.indexOf(firstInput.value) != -1) {
-							episodeFilters.splice(episodeFilters.indexOf(firstInput.value), 1);
-						}
-						break;
-					case 'resolutions':
-						if(resolutionFilters.indexOf(firstInput.value) != -1) {
-							resolutionFilters.splice(resolutionFilters.indexOf(firstInput.value), 1);
-						}
-						break;
-				}
-
-			}
-
-			//updateFilters
-			setFilter();
-		}
-
-		//set Filters
-		function setFilter(){
-			if(groupFilters.length < 1 && episodeFilters.length < 1 && resolutionFilters.length < 1){
-				tableList.filter();
-				return false;
-			}
-
-			tableList.filter(function(item){
-				if(
-						groupFiltering(item) &&
-						episodeFiltering(item) &&
-						resolutionFiltering(item)
-				){
-					return true;
-				}
-				return false;
-			});
-		}
-
-		function groupFiltering(item){
-			if(groupFilters.length > 0){
-				for(var j = 0; j < groupFilters.length; j++) {
-					if(item.values().tableGroup.indexOf(groupFilters[j]) > -1){
-						return true;
-					}
-				}
-				return false;
-			}
-			return true;
-		}
-
-		function episodeFiltering(item){
-			if(episodeFilters.length > 0) {
-				for (var j = 0; j < episodeFilters.length; j++) {
-					if (item.values().tableEpisode.indexOf(episodeFilters[j]) > -1) {
-						return true;
-					}
-				}
-				return false;
-			}
-			return true;
-		}
-
-		function resolutionFiltering(item){
-			if(resolutionFilters.length > 0) {
-				for (var j = 0; j < resolutionFilters.length; j++) {
-					if (item.values().tableResolution.indexOf(resolutionFilters[j]) > -1) {
-						return true;
-					}
-				}
-				return false;
-			}
-			return true;
-		}
-
-		//window.onload = login;
-	</script>
 </html>
